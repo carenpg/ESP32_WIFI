@@ -1,5 +1,5 @@
 #include <WiFi.h>
-#include <WiFiManager.h>  
+#include <WiFiManager.h>
 
 #define RESET_PIN 0  // Botón físico para borrar credenciales (GPIO0)
 
@@ -32,20 +32,21 @@ void setup() {
 }
 
 void loop() {
-  // Ejemplo: si pierde conexión, abre de nuevo el AP automáticamente
+  // Verificar si se envió 'c' por el monitor serial
+  if (Serial.available()) {
+    char c = Serial.read();
+    if (c == 'c') {
+      Serial.println("Forzando cambio de red...");
+      wm.startConfigPortal("ESP32-Setup", "12345678");
+    }
+  }
+
+  // Si se pierde la conexión, abrir el portal de configuración
   if (WiFi.status() != WL_CONNECTED) {
     Serial.println("WiFi perdida, iniciando portal de configuración...");
     wm.startConfigPortal("ESP32-Setup", "12345678");
     Serial.println("Reconectado!");
   }
-
-  if (Serial.available()) {
-  char c = Serial.read();
-  if (c == 'c') { // si envías "c" por Serial
-    Serial.println("Forzando cambio de red...");
-    wm.startConfigPortal("ESP32-Setup", "12345678");
-  }
-
 
   // Tu código de aplicación aquí
   delay(5000);  // evitar saturar el serial
